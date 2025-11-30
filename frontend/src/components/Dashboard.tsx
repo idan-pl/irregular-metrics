@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Metric } from '../types';
+import React, { useEffect, useState, useCallback } from 'react';
+import type { Metric } from '../types';
 import { getMetrics } from '../api';
 import { MetricCard } from './MetricCard';
 import { Link } from 'react-router-dom';
@@ -8,20 +8,21 @@ import { Settings } from 'lucide-react';
 export const Dashboard: React.FC = () => {
     const [metrics, setMetrics] = useState<Metric[]>([]);
 
-    useEffect(() => {
-        fetchMetrics();
-        const interval = setInterval(fetchMetrics, 5000); // Auto-refresh every 5s
-        return () => clearInterval(interval);
-    }, []);
-
-    const fetchMetrics = async () => {
+    const fetchMetrics = useCallback(async () => {
         try {
             const data = await getMetrics();
             setMetrics(data);
         } catch (error) {
             console.error("Failed to fetch metrics", error);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchMetrics();
+        const interval = setInterval(fetchMetrics, 5000); // Auto-refresh every 5s
+        return () => clearInterval(interval);
+    }, [fetchMetrics]);
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
@@ -32,7 +33,7 @@ export const Dashboard: React.FC = () => {
                         <Settings className="w-6 h-6" />
                     </Link>
                 </div>
-                
+
                 {metrics.length === 0 ? (
                     <div className="text-center py-20">
                         <p className="text-gray-500 text-lg">No metrics yet. Go to Admin to add some!</p>
@@ -48,4 +49,3 @@ export const Dashboard: React.FC = () => {
         </div>
     );
 };
-

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Metric } from '../types';
+import React, { useEffect, useState, useCallback } from 'react';
+import type { Metric } from '../types';
 import { getMetrics, createMetric, deleteMetric, updateMetric } from '../api';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Trash2, Edit2, Plus, Save, X } from 'lucide-react';
@@ -17,18 +17,19 @@ export const AdminPanel: React.FC = () => {
     const [currentMetric, setCurrentMetric] = useState<Metric>(initialMetric);
     const [isEditing, setIsEditing] = useState(false);
 
-    useEffect(() => {
-        fetchMetrics();
-    }, []);
-
-    const fetchMetrics = async () => {
+    const fetchMetrics = useCallback(async () => {
         try {
             const data = await getMetrics();
             setMetrics(data);
         } catch (error) {
             console.error("Failed to fetch metrics", error);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchMetrics();
+    }, [fetchMetrics]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -106,7 +107,7 @@ export const AdminPanel: React.FC = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                                 <select
                                     value={currentMetric.metric_type}
-                                    onChange={e => setCurrentMetric({ ...currentMetric, metric_type: e.target.value as any })}
+                                    onChange={e => setCurrentMetric({ ...currentMetric, metric_type: e.target.value as Metric['metric_type'] })}
                                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                 >
                                     <option value="text">Text</option>
@@ -143,7 +144,7 @@ export const AdminPanel: React.FC = () => {
                                 <p className="text-xs text-gray-500 mt-1">Try: activity, users, server, cpu, database, globe, smile</p>
                             </div>
                         </div>
-                        
+
                         <div className="flex gap-2 pt-2">
                             <button
                                 type="submit"
@@ -205,4 +206,3 @@ export const AdminPanel: React.FC = () => {
         </div>
     );
 };
-

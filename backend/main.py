@@ -1,3 +1,4 @@
+import uvicorn
 from contextlib import asynccontextmanager
 from typing import List
 
@@ -13,25 +14,25 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
 
+
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
+
 
 def get_session():
     with Session(engine) as session:
         yield session
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()
     yield
 
+
 app = FastAPI(lifespan=lifespan)
 
-origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "*"
-]
+origins = ["http://localhost:5173", "http://localhost:3000", "*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,6 +42,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/metrics/", response_model=Metric)
 def create_metric(metric: Metric, session: Session = Depends(get_session)):
     session.add(metric)
@@ -48,10 +50,14 @@ def create_metric(metric: Metric, session: Session = Depends(get_session)):
     session.refresh(metric)
     return metric
 
+
 @app.get("/metrics/", response_model=List[Metric])
-def read_metrics(offset: int = 0, limit: int = 100, session: Session = Depends(get_session)):
+def read_metrics(
+    offset: int = 0, limit: int = 100, session: Session = Depends(get_session)
+):
     metrics = session.exec(select(Metric).offset(offset).limit(limit)).all()
     return metrics
+
 
 @app.get("/metrics/{metric_id}", response_model=Metric)
 def read_metric(metric_id: int, session: Session = Depends(get_session)):
@@ -60,8 +66,11 @@ def read_metric(metric_id: int, session: Session = Depends(get_session)):
         raise HTTPException(status_code=404, detail="Metric not found")
     return metric
 
+
 @app.put("/metrics/{metric_id}", response_model=Metric)
-def update_metric(metric_id: int, metric: Metric, session: Session = Depends(get_session)):
+def update_metric(
+    metric_id: int, metric: Metric, session: Session = Depends(get_session)
+):
     db_metric = session.get(Metric, metric_id)
     if not db_metric:
         raise HTTPException(status_code=404, detail="Metric not found")
@@ -73,6 +82,7 @@ def update_metric(metric_id: int, metric: Metric, session: Session = Depends(get
     session.refresh(db_metric)
     return db_metric
 
+
 @app.delete("/metrics/{metric_id}")
 def delete_metric(metric_id: int, session: Session = Depends(get_session)):
     metric = session.get(Metric, metric_id)
@@ -82,6 +92,6 @@ def delete_metric(metric_id: int, session: Session = Depends(get_session)):
     session.commit()
     return {"ok": True}
 
+
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

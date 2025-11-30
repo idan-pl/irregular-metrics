@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Metric } from './types';
+import type { Metric } from './types';
 
 const API_URL = 'http://localhost:8000';
 
@@ -21,4 +21,3 @@ export const updateMetric = async (id: number, metric: Metric): Promise<Metric> 
 export const deleteMetric = async (id: number): Promise<void> => {
     await axios.delete(`${API_URL}/metrics/${id}`);
 };
-

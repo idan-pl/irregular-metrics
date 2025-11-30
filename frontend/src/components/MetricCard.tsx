@@ -1,11 +1,11 @@
 import React from 'react';
-import { Metric } from '../types';
-import { 
-    Activity, 
-    DollarSign, 
-    Percent, 
-    TrendingUp, 
-    Users, 
+import type { Metric } from '../types';
+import {
+    Activity,
+    DollarSign,
+    Percent,
+    TrendingUp,
+    Users,
     Server,
     Cpu,
     Database,
@@ -37,7 +37,7 @@ interface MetricCardProps {
 
 export const MetricCard: React.FC<MetricCardProps> = ({ metric, className }) => {
     const Icon = metric.icon && iconMap[metric.icon.toLowerCase()] ? iconMap[metric.icon.toLowerCase()] : Activity;
-    
+
     const getColorClass = (color: string) => {
         const colors: { [key: string]: string } = {
             blue: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -68,4 +68,3 @@ export const MetricCard: React.FC<MetricCardProps> = ({ metric, className }) => 
         </div>
     );
 };
-
