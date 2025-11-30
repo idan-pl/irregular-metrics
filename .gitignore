@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Frontend Build
+dist/
+frontend/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Database
+*.db
+backend/metrics.db
+
+# Environment and logs
+.env
+.DS_Store
+logs/
+*.log
