@@ -3,7 +3,8 @@ import type { Metric } from '../types';
 import { getMetrics } from '../api';
 import { MetricCard } from './MetricCard';
 import { Link } from 'react-router-dom';
-import { Settings } from 'lucide-react';
+import { Settings, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const Dashboard: React.FC = () => {
     const [metrics, setMetrics] = useState<Metric[]>([]);
@@ -24,26 +25,85 @@ export const Dashboard: React.FC = () => {
         return () => clearInterval(interval);
     }, [fetchMetrics]);
 
+    const container = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
+        <div className="min-h-screen p-8 sm:p-12">
             <div className="max-w-7xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Meh-trics Dashboard</h1>
-                    <Link to="/admin" className="p-2 text-gray-500 hover:text-gray-700 transition-colors">
-                        <Settings className="w-6 h-6" />
+                <div className="flex justify-between items-end mb-12">
+                    <div>
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center gap-2 text-blue-600 font-bold uppercase tracking-wider text-sm mb-2"
+                        >
+                            <Sparkles className="w-4 h-4" />
+                            <span>Live Overview</span>
+                        </motion.div>
+                        <motion.h1
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight"
+                        >
+                            Meh-trics <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Dashboard</span>
+                        </motion.h1>
+                    </div>
+
+                    <Link to="/admin">
+                        <motion.button
+                            whileHover={{ scale: 1.05, rotate: 90 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="p-3 bg-white rounded-full shadow-md text-slate-600 hover:text-blue-600 hover:shadow-lg transition-all"
+                        >
+                            <Settings className="w-6 h-6" />
+                        </motion.button>
                     </Link>
                 </div>
 
                 {metrics.length === 0 ? (
-                    <div className="text-center py-20">
-                        <p className="text-gray-500 text-lg">No metrics yet. Go to Admin to add some!</p>
-                    </div>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="text-center py-32 bg-white/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-slate-200"
+                    >
+                        <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500">
+                            <Sparkles className="w-12 h-12" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">No metrics yet</h3>
+                        <p className="text-slate-500 text-lg mb-8 max-w-md mx-auto">
+                            Your dashboard is looking a bit empty. Head over to the admin panel to create your first metric!
+                        </p>
+                        <Link
+                            to="/admin"
+                            className="inline-flex items-center justify-center px-6 py-3 text-base font-bold text-white transition-all duration-200 bg-blue-600 border border-transparent rounded-full shadow-lg hover:bg-blue-700 hover:shadow-blue-500/30 hover:-translate-y-1"
+                        >
+                            Create Metric
+                        </Link>
+                    </motion.div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <motion.div
+                        variants={container}
+                        initial="hidden"
+                        animate="show"
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                    >
                         {metrics.map((metric) => (
-                            <MetricCard key={metric.id} metric={metric} />
+                            <MetricCard
+                                key={metric.id}
+                                metric={metric}
+                                onUpdate={fetchMetrics}
+                            />
                         ))}
-                    </div>
+                    </motion.div>
                 )}
             </div>
         </div>

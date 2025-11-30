@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Metric } from '../types';
+import { updateMetric } from '../api';
 import {
     Activity,
     DollarSign,
@@ -11,10 +12,13 @@ import {
     Database,
     Globe,
     Clock,
-    Smile
+    Smile,
+    Plus,
+    Minus
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { motion } from 'framer-motion';
 
 const iconMap: { [key: string]: React.ElementType } = {
     activity: Activity,
@@ -33,38 +37,141 @@ const iconMap: { [key: string]: React.ElementType } = {
 interface MetricCardProps {
     metric: Metric;
     className?: string;
+    onUpdate?: () => void;
 }
 
-export const MetricCard: React.FC<MetricCardProps> = ({ metric, className }) => {
+export const MetricCard: React.FC<MetricCardProps> = ({ metric, className, onUpdate }) => {
+    const [isUpdating, setIsUpdating] = useState(false);
     const Icon = metric.icon && iconMap[metric.icon.toLowerCase()] ? iconMap[metric.icon.toLowerCase()] : Activity;
 
-    const getColorClass = (color: string) => {
-        const colors: { [key: string]: string } = {
-            blue: 'bg-blue-100 text-blue-800 border-blue-200',
-            green: 'bg-green-100 text-green-800 border-green-200',
-            red: 'bg-red-100 text-red-800 border-red-200',
-            yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-            purple: 'bg-purple-100 text-purple-800 border-purple-200',
-            pink: 'bg-pink-100 text-pink-800 border-pink-200',
-            gray: 'bg-gray-100 text-gray-800 border-gray-200',
+    const handleValueChange = async (delta: number) => {
+        if (isUpdating) return;
+
+        const currentValue = parseFloat(metric.value);
+        if (isNaN(currentValue)) return;
+
+        setIsUpdating(true);
+        try {
+            const newValue = (currentValue + delta).toString();
+            await updateMetric(metric.id!, { ...metric, value: newValue });
+            onUpdate?.();
+        } catch (error) {
+            console.error('Failed to update metric value', error);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const getColorStyles = (color: string) => {
+        const colors: { [key: string]: { border: string, iconBg: string, iconColor: string, shadow: string } } = {
+            blue: {
+                border: 'border-blue-200',
+                iconBg: 'bg-blue-100',
+                iconColor: 'text-blue-600',
+                shadow: 'shadow-blue-100'
+            },
+            green: {
+                border: 'border-green-200',
+                iconBg: 'bg-green-100',
+                iconColor: 'text-green-600',
+                shadow: 'shadow-green-100'
+            },
+            red: {
+                border: 'border-red-200',
+                iconBg: 'bg-red-100',
+                iconColor: 'text-red-600',
+                shadow: 'shadow-red-100'
+            },
+            yellow: {
+                border: 'border-yellow-200',
+                iconBg: 'bg-yellow-100',
+                iconColor: 'text-yellow-600',
+                shadow: 'shadow-yellow-100'
+            },
+            purple: {
+                border: 'border-purple-200',
+                iconBg: 'bg-purple-100',
+                iconColor: 'text-purple-600',
+                shadow: 'shadow-purple-100'
+            },
+            pink: {
+                border: 'border-pink-200',
+                iconBg: 'bg-pink-100',
+                iconColor: 'text-pink-600',
+                shadow: 'shadow-pink-100'
+            },
+            gray: {
+                border: 'border-gray-200',
+                iconBg: 'bg-gray-100',
+                iconColor: 'text-gray-600',
+                shadow: 'shadow-gray-100'
+            },
         };
         return colors[color] || colors.blue;
     };
 
+    const styles = getColorStyles(metric.color);
+
     return (
-        <div className={twMerge(clsx(
-            "rounded-xl border p-6 shadow-sm transition-all hover:shadow-md",
-            getColorClass(metric.color),
-            className
-        ))}>
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium opacity-80">{metric.name}</h3>
-                <Icon className="w-5 h-5 opacity-60" />
+        <motion.div
+            whileHover={{ scale: 1.02, y: -5 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className={twMerge(clsx(
+                "bg-white rounded-2xl border-2 p-6 transition-all relative overflow-hidden",
+                styles.border,
+                "shadow-lg hover:shadow-xl",
+                styles.shadow,
+                className
+            ))}
+        >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-transparent to-white/50 rounded-bl-full pointer-events-none opacity-50" />
+
+            <div className="flex items-start justify-between mb-6 relative z-10">
+                <div className={clsx("p-3 rounded-xl", styles.iconBg, styles.iconColor)}>
+                    <Icon className="w-6 h-6" strokeWidth={2.5} />
+                </div>
+                {/* Decorative dot */}
+                <div className={clsx("w-2 h-2 rounded-full", styles.iconBg.replace('bg-', 'bg-').replace('100', '400'))} />
             </div>
-            <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold tracking-tight">{metric.value}</span>
-                <span className="text-sm opacity-60 font-medium uppercase">{metric.metric_type}</span>
+
+            <div className="relative z-10">
+                <h3 className="text-gray-500 font-medium text-sm tracking-wide uppercase mb-1 ml-1">
+                    {metric.name}
+                </h3>
+                <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold text-gray-900 tracking-tight">
+                        {metric.value}
+                    </span>
+                    <span className="text-xs font-bold text-gray-400 uppercase bg-gray-100 px-2 py-1 rounded-full">
+                        {metric.metric_type}
+                    </span>
+                </div>
+
+                {metric.is_counter && (
+                    <div className="mt-4 flex gap-2">
+                        <button
+                            onClick={() => handleValueChange(-1)}
+                            disabled={isUpdating}
+                            className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors disabled:opacity-50"
+                        >
+                            <Minus className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => handleValueChange(1)}
+                            disabled={isUpdating}
+                            className={clsx(
+                                "p-2 rounded-lg text-white transition-colors disabled:opacity-50",
+                                styles.iconBg.replace('bg-', 'bg-').replace('100', '600'),
+                                "hover:opacity-90"
+                            )}
+                        >
+                            <Plus className="w-4 h-4" />
+                        </button>
+                    </div>
+                )}
             </div>
-        </div>
+        </motion.div>
     );
 };

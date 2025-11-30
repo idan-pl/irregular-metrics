@@ -36,8 +36,12 @@ trap cleanup EXIT
 
 echo "Starting Backend..."
 cd backend
-source .venv/bin/activate
-uvicorn main:app --reload --port 8000 &
+if command -v uv &> /dev/null; then
+    uv run uvicorn main:app --reload --port 8000 &
+else
+    [ -f .venv/bin/activate ] && source .venv/bin/activate
+    uvicorn main:app --reload --port 8000 &
+fi
 BACKEND_PID=$!
 cd ..
 

@@ -7,5 +7,6 @@ class Metric(SQLModel, table=True):
     name: str
     value: str
     metric_type: str = Field(default="text")  # text, number, percentage, currency
+    is_counter: bool = Field(default=False)
     color: str = Field(default="blue")  # tailwind color class or hex
     icon: Optional[str] = Field(default=None)  # lucide icon name
