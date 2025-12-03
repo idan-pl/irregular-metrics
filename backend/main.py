@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel, Session, create_engine, select
 
 from models import Metric
+from db_utils import load_data
 
 sqlite_file_name = "metrics.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
@@ -27,6 +28,11 @@ def get_session():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()
+    with Session(engine) as session:
+        # Check if DB is empty
+        if not session.exec(select(Metric)).first():
+            print("Database is empty. Loading seed data...")
+            load_data(session)
     yield
 
 

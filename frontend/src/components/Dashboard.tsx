@@ -54,7 +54,7 @@ export const Dashboard: React.FC = () => {
                             transition={{ delay: 0.1 }}
                             className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight"
                         >
-                            Meh-trics <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Dashboard</span>
+                            Irregular Metrics <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Dashboard</span>
                         </motion.h1>
                     </div>
 

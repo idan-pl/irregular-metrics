@@ -51,7 +51,7 @@ npm run dev &
 FRONTEND_PID=$!
 cd ..
 
-echo "Meh-trics is running!"
+echo "Irregular Metrics is running!"
 echo "Backend: http://localhost:8000"
 echo "Frontend: http://localhost:5173"
 
