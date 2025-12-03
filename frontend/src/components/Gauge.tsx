@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import GaugeComponent from 'react-gauge-component';
 
 interface GaugeProps {
     value: number;
@@ -20,93 +20,33 @@ const colorMap: { [key: string]: string } = {
 export const Gauge: React.FC<GaugeProps> = ({ value, color, size = 200 }) => {
     // Ensure value is between 0 and 100
     const clampedValue = Math.min(Math.max(value, 0), 100);
-
-    // Calculate rotation: -90deg is 0%, 90deg is 100%
-    const rotation = (clampedValue / 100) * 180 - 90;
-
-    const strokeColor = colorMap[color] || colorMap.blue;
-
-    // SVG dimensions
-    const strokeWidth = 20;
-    const radius = 80;
-    const center = 100;
-
-    // Calculate arc path for the colored progress
-    // We want the arc to go from left (180 degrees) to right (0 degrees) in SVG coordinates
-    // But for a gauge, we usually want bottom-left to bottom-right.
-    // Let's use a simple approach: a background arc and a foreground arc that is masked or dash-arrayed.
-
-    // Using dasharray for the progress arc
-    // Circumference of the semi-circle = PI * radius
-    const circumference = Math.PI * radius;
-    const dashOffset = circumference - (clampedValue / 100) * circumference;
+    const targetColor = colorMap[color] || colorMap.blue;
 
     return (
-        <div className="relative flex flex-col items-center justify-center" style={{ width: size, height: size / 2 + 20 }}>
-            <svg
-                width={size}
-                height={size / 2}
-                viewBox={`0 0 200 100`}
-                className="overflow-visible"
-            >
-                {/* Background Track */}
-                <path
-                    d={`M ${center - radius} ${center} A ${radius} ${radius} 0 0 1 ${center + radius} ${center}`}
-                    fill="none"
-                    stroke="#E5E7EB" // gray-200
-                    strokeWidth={strokeWidth}
-                    strokeLinecap="round"
-                />
-
-                {/* Progress Arc */}
-                <motion.path
-                    d={`M ${center - radius} ${center} A ${radius} ${radius} 0 0 1 ${center + radius} ${center}`}
-                    fill="none"
-                    stroke={strokeColor}
-                    strokeWidth={strokeWidth}
-                    strokeLinecap="round"
-                    initial={{ strokeDasharray: circumference, strokeDashoffset: circumference }}
-                    animate={{ strokeDashoffset: dashOffset }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                />
-
-                {/* Needle */}
-                <g transform={`translate(${center}, ${center})`}>
-                     <motion.g
-                        initial={{ rotate: -90 }}
-                        animate={{ rotate: rotation }}
-                        transition={{ type: "spring", stiffness: 50, damping: 10 }}
-                     >
-                        {/* Visible Needle */}
-                        <line
-                            x1={0}
-                            y1={0}
-                            x2={0}
-                            y2={-(radius - 10)}
-                            stroke="#1F2937"
-                            strokeWidth={4}
-                            strokeLinecap="round"
-                        />
-                        {/* Center Pivot */}
-                        <circle cx={0} cy={0} r={6} fill="#1F2937" />
-
-                        {/* Invisible counter-weight to center the bounding box at 0,0 */}
-                        <line
-                            x1={0}
-                            y1={0}
-                            x2={0}
-                            y2={radius - 10}
-                            stroke="transparent"
-                            strokeWidth={4}
-                        />
-                     </motion.g>
-                </g>
-            </svg>
-
-            {/* Value Text inside/below */}
-            <div className="absolute bottom-0 transform translate-y-1/2 flex flex-col items-center">
-               {/* Value is rendered by parent usually, but we can keep it clean here */}
-            </div>
+        <div style={{ width: size, height: size / 1.5, margin: '0 auto' }}>
+            <GaugeComponent
+                value={clampedValue}
+                type="semicircle"
+                arc={{
+                    padding: 0.02,
+                    subArcs: [
+                        { limit: clampedValue, color: targetColor, showTick: false },
+                        { limit: 100, color: '#E5E7EB', showTick: false }
+                    ],
+                    width: 0.15
+                }}
+                pointer={{
+                    type: "needle",
+                    elastic: true,
+                    animationDelay: 0,
+                    color: "#1F2937",
+                    width: 15,
+                }}
+                labels={{
+                    valueLabel: { hide: true },
+                    tickLabels: { hideMinMax: true }
+                }}
+            />
         </div>
     );
 };

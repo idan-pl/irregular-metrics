@@ -1,6 +1,7 @@
 {
   "name": "irregular-metrics",
   "dependencies": {
-    "framer-motion": "^12.23.24"
+    "framer-motion": "^12.23.24",
+    "react-gauge-component": "^1.2.64"
   }
 }
