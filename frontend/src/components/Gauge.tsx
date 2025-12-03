@@ -71,30 +71,13 @@ export const Gauge: React.FC<GaugeProps> = ({ value, color, size = 200 }) => {
                 />
 
                 {/* Needle */}
-                <motion.g
-                    initial={{ rotate: -90 }}
-                    animate={{ rotate: rotation }}
-                    transition={{ type: "spring", stiffness: 50, damping: 10 }}
-                    style={{
-                        originX: 0.5, // percentage of element width
-                        originY: 1,   // bottom of the element? No, this applies to the group bounding box which is tricky.
-                        // Let's try explicit transform origin in pixels relative to SVG
-                        transformBox: "fill-box",
-                        transformOrigin: "50% 100%" // Relative to the group bounding box?
-                    }}
-                >
-                    {/*
-                       Instead of rotating the group which has dynamic bounding box based on children,
-                       let's put the center at 0,0 of the group and translate it to center.
-                    */}
-                </motion.g>
-                {/* Alternative Needle Implementation: Standard Rotation Group */}
                 <g transform={`translate(${center}, ${center})`}>
                      <motion.g
                         initial={{ rotate: -90 }}
                         animate={{ rotate: rotation }}
                         transition={{ type: "spring", stiffness: 50, damping: 10 }}
                      >
+                        {/* Visible Needle */}
                         <line
                             x1={0}
                             y1={0}
@@ -104,7 +87,18 @@ export const Gauge: React.FC<GaugeProps> = ({ value, color, size = 200 }) => {
                             strokeWidth={4}
                             strokeLinecap="round"
                         />
+                        {/* Center Pivot */}
                         <circle cx={0} cy={0} r={6} fill="#1F2937" />
+
+                        {/* Invisible counter-weight to center the bounding box at 0,0 */}
+                        <line
+                            x1={0}
+                            y1={0}
+                            x2={0}
+                            y2={radius - 10}
+                            stroke="transparent"
+                            strokeWidth={4}
+                        />
                      </motion.g>
                 </g>
             </svg>

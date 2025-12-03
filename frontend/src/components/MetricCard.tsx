@@ -172,17 +172,17 @@ export const MetricCard: React.FC<MetricCardProps> = ({ metric, className, onUpd
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-transparent to-white/50 rounded-bl-full pointer-events-none opacity-50" />
 
             {isPercentage ? (
-                <div className="relative z-10 w-full flex flex-col items-center">
-                    <Gauge value={numericValue} color={metric.color} size={200} />
-                    <div className="text-center -mt-8">
-                        <h3 className="text-gray-500 font-medium text-sm tracking-wide uppercase mb-1">
+                <div className="relative z-10 w-full flex flex-col items-center pt-4">
+                    <Gauge value={numericValue} color={metric.color} size={180} />
+                    <div className="text-center mt-2">
+                        <h3 className="text-gray-500 font-medium text-sm tracking-wide uppercase mb-1 px-2 line-clamp-2 h-10 flex items-center justify-center">
                             {metric.name}
                         </h3>
                         <div className="flex items-baseline justify-center gap-1">
-                            <span className="text-4xl font-bold text-gray-900 tracking-tight">
+                            <span className="text-3xl font-bold text-gray-900 tracking-tight">
                                 {metric.value}
                             </span>
-                            <span className="text-xl font-bold text-gray-400">%</span>
+                            <span className="text-lg font-bold text-gray-400">%</span>
                         </div>
                     </div>
                 </div>
