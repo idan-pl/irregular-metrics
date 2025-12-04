@@ -10,6 +10,13 @@ dependencies = [
     "uvicorn>=0.38.0",
 ]
 
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["main", "models", "db_utils", "manage_db"]
+
 [dependency-groups]
 dev = [
     "mypy>=1.19.0",

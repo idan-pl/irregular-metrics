@@ -1,6 +1,20 @@
 #!/bin/bash
 set -e
 
+# Function to install system dependencies via apt
+install_system_deps() {
+    if command -v apt-get &> /dev/null; then
+        echo "Detected apt-get. Installing system dependencies..."
+        local SUDO=""
+        if [ "$EUID" -ne 0 ] && command -v sudo &> /dev/null; then
+            SUDO="sudo"
+        fi
+
+        $SUDO apt-get update
+        $SUDO apt-get install -y curl git python3 python3-pip python3-venv
+    fi
+}
+
 # Function to check and setup Node Version
 ensure_node_version() {
     local required_version="22.12.0"
@@ -23,6 +37,8 @@ ensure_node_version() {
 }
 
 echo "=== Setting up Irregular Metrics ==="
+
+install_system_deps
 
 # 1. Frontend Setup
 echo ""
@@ -49,20 +65,18 @@ if command -v uv &> /dev/null; then
 else
     echo "'uv' not found. Falling back to standard Python venv..."
 
-    if [ ! -d ".venv" ]; then
+    if [ ! -f ".venv/bin/activate" ]; then
         echo "Creating .venv..."
+        # Remove potentially broken venv
+        rm -rf .venv
         python3 -m venv .venv
     fi
 
     source .venv/bin/activate
 
     echo "Installing dependencies using pip..."
-    # Attempt to install from pyproject.toml.
-    # If this fails due to missing build-system, we'll fallback to manual list based on current pyproject.toml
-    if ! pip install .; then
-        echo "Direct pip install failed (likely missing build backend). Installing dependencies manually..."
-        pip install "fastapi>=0.123.0" "sqlmodel>=0.0.27" "uvicorn>=0.38.0"
-    fi
+    # Installing dependencies manually to avoid build issues with pip install .
+    pip install "fastapi>=0.123.0" "sqlmodel>=0.0.27" "uvicorn>=0.38.0"
 fi
 cd ..
 
