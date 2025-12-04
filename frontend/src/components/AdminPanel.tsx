@@ -89,7 +89,7 @@ export const AdminPanel: React.FC = () => {
     const labelClasses = "block text-sm font-bold text-slate-700 mb-1 uppercase tracking-wide";
 
     return (
-        <div className="min-h-screen p-8 sm:p-12">
+        <div className="p-8 sm:p-12">
             <div className="max-w-5xl mx-auto">
                 <div className="flex items-center mb-8">
                     <Link to="/" className="mr-4 p-3 bg-white rounded-full shadow-sm hover:shadow-md text-slate-600 hover:text-blue-600 transition-all">

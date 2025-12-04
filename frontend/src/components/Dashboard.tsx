@@ -36,7 +36,7 @@ export const Dashboard: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen p-8 sm:p-12">
+        <div className="p-8 sm:p-12">
             <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-end mb-12">
                     <div>
