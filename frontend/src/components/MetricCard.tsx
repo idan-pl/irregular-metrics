@@ -182,7 +182,6 @@ export const MetricCard: React.FC<MetricCardProps> = ({ metric, className, onUpd
                             <span className="text-3xl font-bold text-gray-900 tracking-tight">
                                 {metric.value}
                             </span>
-                            <span className="text-lg font-bold text-gray-400">%</span>
                         </div>
                     </div>
                 </div>
@@ -203,9 +202,6 @@ export const MetricCard: React.FC<MetricCardProps> = ({ metric, className, onUpd
                         <div className="flex items-baseline gap-2">
                             <span className="text-4xl font-bold text-gray-900 tracking-tight">
                                 {metric.value}
-                            </span>
-                            <span className="text-xs font-bold text-gray-400 uppercase bg-gray-100 px-2 py-1 rounded-full">
-                                {metric.metric_type}
                             </span>
                         </div>
 
