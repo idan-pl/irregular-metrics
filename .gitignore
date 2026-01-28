@@ -8,6 +8,7 @@ frontend/dist/
 # Python
 __pycache__/
 *.py[cod]
+backend/irregular_metrics_backend.egg-info
 
 # Database
 *.db

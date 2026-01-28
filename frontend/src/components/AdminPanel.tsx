@@ -2,8 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import type { Metric } from '../types';
 import { getMetrics, createMetric, deleteMetric, updateMetric } from '../api';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Trash2, Edit2, Plus, Save, X, Sparkles } from 'lucide-react';
+import { ArrowLeft, Trash2, Edit2, Plus, Save, X, Sparkles, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const ADMIN_PASSWORD = 'mehtrics2024';
 
 const initialMetric: Metric = {
     name: '',
@@ -14,11 +16,24 @@ const initialMetric: Metric = {
 };
 
 export const AdminPanel: React.FC = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [password, setPassword] = useState('');
+    const [authError, setAuthError] = useState(false);
     const [metrics, setMetrics] = useState<Metric[]>([]);
     const [currentMetric, setCurrentMetric] = useState<Metric>(initialMetric);
     const [isEditing, setIsEditing] = useState(false);
     const [numerator, setNumerator] = useState('');
     const [denominator, setDenominator] = useState('');
+
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (password === ADMIN_PASSWORD) {
+            setIsAuthenticated(true);
+            setAuthError(false);
+        } else {
+            setAuthError(true);
+        }
+    };
 
     const fetchMetrics = useCallback(async () => {
         try {
@@ -87,6 +102,56 @@ export const AdminPanel: React.FC = () => {
 
     const inputClasses = "w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:ring-0 outline-none transition-all bg-slate-50 focus:bg-white";
     const labelClasses = "block text-sm font-bold text-slate-700 mb-1 uppercase tracking-wide";
+
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-8">
+                <div className="bg-white rounded-3xl shadow-xl shadow-blue-900/5 p-8 w-full max-w-md border border-slate-100">
+                    <div className="flex items-center justify-center gap-3 mb-8">
+                        <div className="p-3 bg-blue-100 rounded-xl text-blue-600">
+                            <Lock className="w-6 h-6" />
+                        </div>
+                        <h1 className="text-2xl font-extrabold text-slate-900">Admin Login</h1>
+                    </div>
+
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        <div>
+                            <label className={labelClasses}>Password</label>
+                            <input
+                                type="password"
+                                required
+                                value={password}
+                                onChange={e => {
+                                    setPassword(e.target.value);
+                                    setAuthError(false);
+                                }}
+                                className={`${inputClasses} ${authError ? 'border-red-400 bg-red-50' : ''}`}
+                                placeholder="Enter admin password"
+                                autoFocus
+                            />
+                            {authError && (
+                                <p className="text-red-500 text-sm mt-2 font-medium">Incorrect password</p>
+                            )}
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold rounded-xl shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all active:scale-95"
+                        >
+                            <Lock className="w-5 h-5 mr-2" />
+                            Login
+                        </button>
+                    </form>
+
+                    <div className="mt-6 text-center">
+                        <Link to="/" className="text-slate-500 hover:text-blue-600 font-medium transition-colors">
+                            Back to Dashboard
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-8 sm:p-12">

@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+NODE_VERSION="22.12.0"
+
 # Function to install system dependencies via apt
 install_system_deps() {
     if command -v apt-get &> /dev/null; then
@@ -15,35 +17,52 @@ install_system_deps() {
     fi
 }
 
-# Function to check and setup Node Version
-ensure_node_version() {
-    local required_version="22.12.0"
-    local current_version=$(node -v 2>/dev/null | sed 's/v//')
-
-    if [[ -z "$current_version" ]] || [[ "$current_version" == 21.* ]]; then
-        echo "Detected incompatible/missing Node.js version. Checking for nvm..."
-
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-        if command -v nvm &> /dev/null; then
-            echo "Found nvm. Installing/Using Node version from .nvmrc (or package.json engine)..."
-            nvm install 22.12.0
-            nvm use 22.12.0
-        else
-            echo "Warning: nvm not found. Please ensure Node.js 22.12+ is installed."
-        fi
+# Function to install nvm
+install_nvm() {
+    export NVM_DIR="$HOME/.nvm"
+    if [ ! -d "$NVM_DIR" ]; then
+        echo "Installing nvm..."
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
     fi
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+}
+
+# Function to install uv
+install_uv() {
+    if ! command -v uv &> /dev/null; then
+        echo "Installing uv..."
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        # Source the updated PATH
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+}
+
+# Function to setup Node via nvm
+setup_node() {
+    echo "Setting up Node.js $NODE_VERSION via nvm..."
+    nvm install $NODE_VERSION
+    nvm use $NODE_VERSION
+    nvm alias default $NODE_VERSION
 }
 
 echo "=== Setting up Irregular Metrics ==="
 
 install_system_deps
 
+# Install nvm
+echo ""
+echo "--- Installing nvm ---"
+install_nvm
+
+# Install uv
+echo ""
+echo "--- Installing uv ---"
+install_uv
+
 # 1. Frontend Setup
 echo ""
 echo "--- Frontend Setup ---"
-ensure_node_version
+setup_node
 
 cd frontend
 if [ ! -d "node_modules" ]; then
@@ -59,25 +78,9 @@ echo ""
 echo "--- Backend Setup ---"
 cd backend
 
-if command -v uv &> /dev/null; then
-    echo "Found 'uv'. Syncing backend environment..."
-    uv sync
-else
-    echo "'uv' not found. Falling back to standard Python venv..."
+echo "Syncing backend environment with uv..."
+uv sync
 
-    if [ ! -f ".venv/bin/activate" ]; then
-        echo "Creating .venv..."
-        # Remove potentially broken venv
-        rm -rf .venv
-        python3 -m venv .venv
-    fi
-
-    source .venv/bin/activate
-
-    echo "Installing dependencies using pip..."
-    # Installing dependencies manually to avoid build issues with pip install .
-    pip install "fastapi>=0.123.0" "sqlmodel>=0.0.27" "uvicorn>=0.38.0"
-fi
 cd ..
 
 echo ""

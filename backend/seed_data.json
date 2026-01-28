@@ -1,0 +1,65 @@
+[
+  {
+    "is_counter": false,
+    "name": "Employee amount",
+    "value": "26+2",
+    "icon": "users",
+    "metric_type": "text",
+    "id": 1,
+    "color": "green"
+  },
+  {
+    "is_counter": false,
+    "name": "Angry Omer A to Taylor swift",
+    "value": "2/5",
+    "icon": "activity",
+    "metric_type": "calculated_percentage",
+    "id": 2,
+    "color": "blue"
+  },
+  {
+    "is_counter": false,
+    "name": "Shwarmas won",
+    "value": "6",
+    "icon": "smile",
+    "metric_type": "number",
+    "id": 3,
+    "color": "pink"
+  },
+  {
+    "is_counter": false,
+    "name": "Days Dan abroad",
+    "value": "300/365",
+    "icon": "activity",
+    "metric_type": "calculated_percentage",
+    "id": 4,
+    "color": "red"
+  },
+  {
+    "is_counter": false,
+    "name": "Cakes eaten",
+    "value": "42",
+    "icon": "Cake",
+    "metric_type": "number",
+    "id": 5,
+    "color": "purple"
+  },
+  {
+    "is_counter": false,
+    "name": "Monthly Protein consumed (Kg)",
+    "value": "3.3",
+    "icon": "cpu",
+    "metric_type": "number",
+    "id": 6,
+    "color": "red"
+  },
+  {
+    "is_counter": false,
+    "name": "Stay",
+    "value": "tune",
+    "icon": "activity",
+    "metric_type": "text",
+    "id": 7,
+    "color": "blue"
+  }
+]
