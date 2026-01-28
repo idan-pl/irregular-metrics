@@ -24,6 +24,11 @@ cd ..
 
 echo "Starting Frontend..."
 cd frontend
+
+export NVM_DIR="/home/ubuntu/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+
 npm run dev -- --host &
 FRONTEND_PID=$!
 cd ..
