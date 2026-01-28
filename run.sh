@@ -21,7 +21,7 @@ cd ..
 
 echo "Starting Frontend..."
 cd frontend
-npm run dev &
+npm run dev -- --host &
 FRONTEND_PID=$!
 cd ..
 
