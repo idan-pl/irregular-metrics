@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Metric } from './types';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = '/api';
 
 export const getMetrics = async (): Promise<Metric[]> => {
     const response = await axios.get(`${API_URL}/metrics/`);
