@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Change to the script's directory
+cd "$(dirname "$0")"
+
 # Function to kill background processes on exit
 cleanup() {
     echo "Stopping servers..."
