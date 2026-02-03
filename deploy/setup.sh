@@ -2,7 +2,7 @@
 set -e
 
 # Configuration - EDIT THESE
-DOMAIN="YOUR_DOMAIN.com"
+DOMAIN="irregular-services.duckdns.org"
 EMAIL="YOUR_EMAIL@example.com"
 APP_DIR="/var/www/meh-trics"
 
@@ -59,9 +59,12 @@ rm -f /etc/nginx/sites-enabled/default
 # Test nginx config
 nginx -t
 
-# Get SSL certificate
+# Start nginx first (needed for webroot challenge)
+systemctl restart nginx
+
+# Get SSL certificate using webroot method (--keep-until-expiring makes it idempotent)
 echo "Obtaining SSL certificate..."
-certbot --nginx -d $DOMAIN --non-interactive --agree-tos --email $EMAIL
+certbot certonly --webroot -w /var/www/certbot -d $DOMAIN --non-interactive --agree-tos --email $EMAIL --keep-until-expiring
 
 # Create systemd service for backend
 echo "Creating systemd service..."
@@ -89,16 +92,17 @@ chown -R www-data:www-data $APP_DIR
 # Enable and start services
 systemctl daemon-reload
 systemctl enable meh-trics
-systemctl start meh-trics
+systemctl restart meh-trics
 systemctl restart nginx
 
-# Setup auto-renewal for SSL
+# Setup auto-renewal for SSL (only add if not already present)
 echo "Setting up SSL auto-renewal..."
-(crontab -l 2>/dev/null; echo "0 3 * * * certbot renew --quiet && systemctl reload nginx") | crontab -
+CRON_JOB="0 3 * * * certbot renew --quiet && systemctl reload nginx"
+(crontab -l 2>/dev/null | grep -v "certbot renew"; echo "$CRON_JOB") | crontab -
 
 echo ""
 echo "=== Setup Complete ==="
-echo "Your app is now running at https://$DOMAIN"
+echo "Your app is now running at https://$DOMAIN:8433"
 echo ""
 echo "Useful commands:"
 echo "  systemctl status meh-trics    # Check backend status"
