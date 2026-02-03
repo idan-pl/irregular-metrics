@@ -23,7 +23,14 @@ apt update && apt upgrade -y
 
 # Install dependencies
 echo "Installing dependencies..."
-apt install -y nginx certbot python3-certbot-nginx python3.11 python3.11-venv python3-pip nodejs npm uv
+apt install -y nginx certbot python3-certbot-nginx python3 python3-venv python3-pip nodejs npm curl
+
+# Install uv (not available in apt)
+if ! command -v uv &> /dev/null; then
+    echo "Installing uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
+fi
 
 # Create app directory
 echo "Setting up application directory..."

@@ -18,7 +18,9 @@ trap cleanup EXIT
 
 echo "Starting Backend..."
 cd backend
-uv run uvicorn main:app --reload --port 8000 &
+uv sync
+uv run python -m uvicorn main:app --reload --port 8000 &
+
 BACKEND_PID=$!
 cd ..
 
