@@ -1,0 +1,12 @@
+[Unit]
+Description=irregular_metrics_service
+After=network.target
+
+[Service]
+WorkingDirectory=/var/www/irregular-metrics
+ExecStart=/var/www/irregular-metrics/run.sh
+Restart=always
+User=ubuntu
+
+[Install]
+WantedBy=multi-user.target
