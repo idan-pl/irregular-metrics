@@ -1,9 +1,12 @@
 import uvicorn
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import List
 
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlmodel import SQLModel, Session, create_engine, select
 
 from models import Metric
@@ -97,6 +100,26 @@ def delete_metric(metric_id: int, session: Session = Depends(get_session)):
     session.delete(metric)
     session.commit()
     return {"ok": True}
+
+
+# Serve frontend static files in production
+frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="assets")
+
+    @app.get("/")
+    async def serve_index():
+        return FileResponse(frontend_dist / "index.html")
+
+    @app.get("/{path:path}")
+    async def serve_spa(path: str):
+        # Don't intercept API routes
+        if path.startswith("metrics"):
+            raise HTTPException(status_code=404)
+        file_path = frontend_dist / path
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(frontend_dist / "index.html")
 
 
 if __name__ == "__main__":
