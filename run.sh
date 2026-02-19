@@ -9,6 +9,9 @@ cleanup() {
     kill $(jobs -p)
 }
 
+# Ensure uv is in PATH (installed to ~/.local/bin by astral installer)
+export PATH="$HOME/.local/bin:$PATH"
+
 # Load nvm and use the correct node version
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
